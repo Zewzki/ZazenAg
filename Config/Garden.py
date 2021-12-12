@@ -1,7 +1,7 @@
 import re
 
-from Cell import Cell
-from Basin import Basin
+from .Cell import Cell
+from .Basin import Basin
 
 class Garden():
 
@@ -42,10 +42,17 @@ class Garden():
 	
 	def GetField(self, key):
 		if not key in self.GardenData.keys():
-			print('Key "{0}" present in dictionary'.format(key))
+			print('Key "{0}" not present in dictionary'.format(key))
 		else:
 			return self.GardenData[key]
 
+	def UpdateCell(self, updatedCell):
+		cellName = updatedCell.GetField('CellName')
+		if not cellName in self.CellList.keys():
+			print('Key "{0}" not found in Cell List...'.format(cellName))
+		else:
+			self.CellList[cellName] = updatedCell
+	
 	def AddCell(self, newCell):
 		self.CellList[newCell.Name] = newCell
 	
@@ -56,22 +63,23 @@ class Garden():
 			print('Key "{0}" not found in Cell List...'.format(cellName))
 			return None
 	
-	def GetCells(self):
+	def GetCellList(self):
 		return self.CellList
 	
 	def Serialize(self):
 		s = '<Garden>\n'
 		
 		for key in self.GardenData.keys():
-			s += '\t<' + key + '>' + self.CellList[key] + '</' + key + '>\n'
+			s += '\t<' + key + '>' + str(self.GardenData[key]) + '</' + key + '>\n'
 
-		for cell in self.CellList:
-			s += cell.Serialize()
+		for cellName in self.CellList.keys():
+			s += self.CellList[cellName].Serialize()
 		
-		for basin in self.BasinList:
-			s += basin.Serialize()
+		for basinName in self.BasinList.keys():
+			s += self.BasinList[basinName].Serialize()
 
 		s += '</Garden>\n'
+		return s
 	
 	def Deserialize(self, rawString):
 
@@ -115,7 +123,7 @@ class Garden():
 	def __str__(self):
 		s = ''
 		for key in self.GardenData.keys():
-			s += key + ':' + self.GardenData[key] + '\n'
+			s += key + ':' + str(self.GardenData[key]) + '\n'
 
 		for cellName in self.CellList.keys():
 			s += '----------\n'

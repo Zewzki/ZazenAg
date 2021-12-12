@@ -2,9 +2,9 @@ import re
 import os
 from os.path import exists
 
-from Garden import Garden
-from Cell import Cell
-from Basin import Basin
+from .Garden import Garden
+from .Cell import Cell
+from .Basin import Basin
 
 class SystemConfig():
 
@@ -29,32 +29,45 @@ class SystemConfig():
 			return
 		self.GardenList[newGardenName] = Garden()
 	
+	def UpdateGarden(self, updatedGarden):
+		gardenName = updatedGarden.GetField('GardenName')
+
+		if not gardenName in self.GardenList.keys():
+			print('Key "{0}" is not present in GardenList. Ensure provided garden structure is accurately named'.format(gardenName))
+			return
+		self.GardenList[gardenName] = updatedGarden
+	
 	def Serialize(self, saveDir):
-		s = '<SystemConfig>'
+		s = '<SystemConfig>\n'
 		
 		for gardenName in self.GardenList.keys():
-			s += str(self.GardenList[gardenName]) + '\n'
+			s += self.GardenList[gardenName].Serialize() + '\n'
 		
-		s = '</SystemConfig>'
+		s += '</SystemConfig>'
 
 		configFile = open(saveDir, 'w')
 		configFile.write(s)
 		configFile.close()
 	
 	def Deserialize(self, loadDir):
-		configFile = open(loadDir, 'r')
-		configData = configFile.read()
-		configFile.close()
 
-		configData = configData.replace('<SystemConfig>', '').replace('</SystemConfig>', '')
+		try:
 
-		gardens = self.GardenPattern.findall(configData)
+			configFile = open(loadDir, 'r')
+			configData = configFile.read()
+			configFile.close()
 
-		for match in gardens:
-			garden = Garden()
-			garden.Deserialize(match)
+			configData = configData.replace('<SystemConfig>', '').replace('</SystemConfig>', '')
 
-			self.GardenList[garden.GetField('GardenName')] = garden
+			gardens = self.GardenPattern.findall(configData)
+
+			for match in gardens:
+				garden = Garden()
+				garden.Deserialize(match)
+
+				self.GardenList[garden.GetField('GardenName')] = garden
+		except:
+			print('Unable to Deserialize from "{0}"'.format(loadDir))
 	
 	def __str__(self):
 		s = '-System Config-\n'

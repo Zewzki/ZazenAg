@@ -42,7 +42,7 @@ class Basin():
 	def Serialize(self):
 		s = '<Basin>\n'
 		for key in self.BasinData.keys():
-			s += '\t<' + key + '>' + self.BasinData[key] + '</' + key + '>\n'
+			s += '\t<' + key + '>' + str(self.BasinData[key]) + '</' + key + '>\n'
 		s += '</Basin>\n'
 		return s
 
@@ -70,7 +70,7 @@ class Basin():
 	def __str__(self):
 		s = ''
 		for key in self.BasinData.keys():
-			s += key + ':' + self.BasinData[key] + '\n'
+			s += key + ':' + str(self.BasinData[key]) + '\n'
 		return s
 
 if __name__ == '__main__':

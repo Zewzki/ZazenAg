@@ -47,7 +47,7 @@ class Cell():
 	def Serialize(self):
 		s = '<Cell>\n'
 		for key in self.CellData.keys():
-			s += '\t<' + key + '>' + self.CellData[key] + '</' + key + '>\n'
+			s += '\t<' + key + '>' + str(self.CellData[key]) + '</' + key + '>\n'
 		s += '</Cell>\n'
 		return s
 
@@ -75,7 +75,7 @@ class Cell():
 	def __str__(self):
 		s = ''
 		for key in self.CellData.keys():
-			s += key + ':' + self.CellData[key] + '\n'
+			s += key + ':' + str(self.CellData[key]) + '\n'
 		return s
 
 if __name__ == '__main__':
