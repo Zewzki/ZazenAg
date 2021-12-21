@@ -41,12 +41,12 @@ class Basin():
 
 	def Serialize(self):
 		s = '<Basin>\n'
-		for key in self.BasinData.keys():
-			s += '\t<' + key + '>' + str(self.BasinData[key]) + '</' + key + '>\n'
+		for key, val in self.BasinData.items():
+			s += '\t<' + str(key) + '>' + str(val) + '</' + str(key) + '>\n'
 		s += '</Basin>\n'
 		return s
 
-	def Deserialize(self, rawString):
+	def Deserialize(self, rawString, diagnosticMode = False):
 
 		self.BasinData.clear()
 
@@ -55,22 +55,22 @@ class Basin():
 		keys = self.KeyPattern.findall(rawString)
 		values = self.ValuePattern.findall(rawString)
 
+		if diagnosticMode:
+			print(zip(keys, values))
+
 		if not len(keys) == len(values):
-			print('Error Deserializing, number of keys did not match number of values: ({0} != {1})\n{2}'.format(len(keys), len(values), rawString))
+			print('Error Deserializing Basin, number of keys did not match number of values: ({0} != {1})\n{2}'.format(len(keys), len(values), rawString))
 			return
 
-		for i in range(0, len(keys)):
-			key = keys[i]
-			val = values[i]
-
+		for key, val in zip(keys, values):
 			key = key.replace('<', '').replace('>', '')
 			val = val.replace('</', '').replace('>', '')
 			self.BasinData[key] = val
 		
 	def __str__(self):
 		s = ''
-		for key in self.BasinData.keys():
-			s += key + ':' + str(self.BasinData[key]) + '\n'
+		for key, val in self.BasinData.items():
+			s += str(key) + ':' + str(val) + '\n'
 		return s
 
 if __name__ == '__main__':

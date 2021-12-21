@@ -1,6 +1,7 @@
 import re
 import os
 from os.path import exists
+import traceback
 
 from .Garden import Garden
 from .Cell import Cell
@@ -8,12 +9,18 @@ from .Basin import Basin
 
 class SystemConfig():
 
-	GardenSearch = '<Garden>[a-zA-Z\s<>\/\d.]*<\/Garden>'
+	GardenSearch = '<Garden>[a-zA-Z\s<>\/\d.:]*<\/Garden>'
+	DiagnosticModeSearch = '<DiagnosticMode>[a-zA-Z]*<\/DiagnosticMode>'
+
+	DiagnosticModeKey = 'DiagnosticMode'
 
 	def __init__(self, path):
 		
 		self.GardenList = {}
 		self.GardenPattern = re.compile(self.GardenSearch)
+		self.DiagnosticModePattern = re.compile(self.DiagnosticModeSearch)
+
+		self.DiagnosticMode = False
 
 		self.Deserialize(path)
 
@@ -39,40 +46,58 @@ class SystemConfig():
 	
 	def Serialize(self, saveDir):
 		s = '<SystemConfig>\n'
+
+		s += '<' + self.DiagnosticModeKey + '>' + str(self.DiagnosticMode) + '</' + self.DiagnosticModeKey + '>\n'
 		
-		for gardenName in self.GardenList.keys():
-			s += self.GardenList[gardenName].Serialize() + '\n'
+		for key, val in self.GardenList.items():
+			s += val.Serialize() + '\n'
 		
 		s += '</SystemConfig>'
 
-		configFile = open(saveDir, 'w')
-		configFile.write(s)
-		configFile.close()
+		with open(saveDir, 'w') as configFile:
+			configFile.write(s)
 	
 	def Deserialize(self, loadDir):
 
 		try:
 
-			configFile = open(loadDir, 'r')
-			configData = configFile.read()
-			configFile.close()
+			configData = None
+
+			with open(loadDir, 'r') as configFile:
+				configData = configFile.read()
 
 			configData = configData.replace('<SystemConfig>', '').replace('</SystemConfig>', '')
 
+			searchResults = self.DiagnosticModePattern.findall(configData)
+			if searchResults is None:
+				raise Exception('DiagnosticMode not present in config file')
+
+			searchResults = searchResults[0].replace('<DiagnosticMode>', '').replace('</DiagnosticMode>', '')
+
+			self.DiagnosticMode = bool(searchResults)
+
 			gardens = self.GardenPattern.findall(configData)
+
+			if self.DiagnosticMode:
+				print(configData)
+				print(gardens)
+
+			if len(gardens) == 0:
+				raise Exception('Error finding Gardens in config file')
 
 			for match in gardens:
 				garden = Garden()
-				garden.Deserialize(match)
-
+				garden.Deserialize(match, self.DiagnosticMode)
 				self.GardenList[garden.GetField('GardenName')] = garden
-		except:
+			
+		except Exception:
 			print('Unable to Deserialize from "{0}"'.format(loadDir))
+			traceback.print_exc()
 	
 	def __str__(self):
 		s = '-System Config-\n'
-		for gardenName in self.GardenList.keys():
-			s += str(self.GardenList[gardenName]) + '\n--------------\n'
+		for key, val in self.GardenList.items():
+			s += str(val) + '\n--------------\n'
 		return s
 
 if __name__ == '__main__':

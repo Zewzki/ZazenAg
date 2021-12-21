@@ -2,6 +2,7 @@ import re
 
 from .Cell import Cell
 from .Basin import Basin
+from .Light import Light
 
 class Garden():
 
@@ -13,11 +14,13 @@ class Garden():
 	ValueSearch = '>[a-zA-Z\/\d.]*<\/'
 	CellSearch = '<Cell>[a-zA-Z\s<>\/\d.]*<\/Cell>'
 	BasinSearch = '<Basin>[a-zA-Z\s<>\/\d.]*<\/Basin>'
+	LightSearch = '<Light>[a-zA-Z\s<>\/\d.]*<\/Light>'
 
 	def __init__(self, Name = 'Default_Name', Capacity = 0, BasinPollDelay = 120.0):
 
 		self.CellList = {}
 		self.BasinList = {}
+		self.LightList = {}
 		self.GardenData = {}
 		self.GardenData[self.GardenNameKey] = Name
 		self.GardenData[self.CapacityKey] = Capacity
@@ -27,6 +30,7 @@ class Garden():
 		self.ValuePattern = re.compile(self.ValueSearch)
 		self.CellPattern = re.compile(self.CellSearch)
 		self.BasinPattern = re.compile(self.BasinSearch)
+		self.LightPattern = re.compile(self.LightSearch)
 	
 	def SetField(self, key, value):
 		if key in self.GardenData.keys():
@@ -69,19 +73,23 @@ class Garden():
 	def Serialize(self):
 		s = '<Garden>\n'
 		
-		for key in self.GardenData.keys():
-			s += '\t<' + key + '>' + str(self.GardenData[key]) + '</' + key + '>\n'
+		for key, val in self.GardenData.items():
+			s += '\t<' + str(key) + '>' + str(val) + '</' + str(key) + '>\n'
 
-		for cellName in self.CellList.keys():
-			s += self.CellList[cellName].Serialize()
+		for key, val in self.CellList.items():
+			s += val.Serialize()
 		
-		for basinName in self.BasinList.keys():
-			s += self.BasinList[basinName].Serialize()
+		for key, val in self.BasinList.items():
+			s += val.Serialize()
+
+		for key, val in self.LightList.items():
+			s += val.Serialize()
 
 		s += '</Garden>\n'
+
 		return s
 	
-	def Deserialize(self, rawString):
+	def Deserialize(self, rawString, diagnosticMode = False):
 
 		self.GardenData.clear()
 
@@ -89,47 +97,62 @@ class Garden():
 
 		cells = self.CellPattern.findall(rawString)
 
+		if diagnosticMode:
+			print(cells)
+
 		for match in cells:
 			rawString = rawString.replace(match, '')
 			cell = Cell()
-			cell.Deserialize(match)
+			cell.Deserialize(match, diagnosticMode)
 			self.CellList[cell.GetField('CellName')] = cell
 		
 		basins = self.BasinPattern.findall(rawString)
+		if diagnosticMode:
+			print(basins)
 
 		for match in basins:
 			rawString = rawString.replace(match, '')
 			basin = Basin()
-			basin.Deserialize(match)
+			basin.Deserialize(match, diagnosticMode)
 			self.BasinList[basin.GetField('BasinName')] = basin
+		
+		lights = self.LightPattern.findall(rawString)
+		if diagnosticMode:
+			print(lights)
+
+		for match in lights:
+			rawString = rawString.replace(match, '')
+			light = Light()
+			light.Deserialize(match, diagnosticMode)
+			self.LightList[light.GetField('LightName')] = light
 		
 		keys = self.KeyPattern.findall(rawString)
 		vals = self.ValuePattern.findall(rawString)
 
+		if diagnosticMode:
+			print(zip(keys, vals))
+
 		if not len(keys) == len(vals):
-			print('Error Deserializing, number of keys did not match number of values: ({0} != {1})\n{2}'.format(len(keys), len(vals), rawString))
+			print('Error Deserializing Garden, number of keys did not match number of values: ({0} != {1})\n{2}'.format(len(keys), len(vals), rawString))
 			print(keys)
 			print(vals)
 			return
 		
-		for i in range(0, len(keys)):
-			key = keys[i]
-			val = vals[i]
-
+		for key, val in zip(keys, vals):
 			key = key.replace('<', '').replace('>', '')
 			val = val.replace('</', '').replace('>', '')
 			self.GardenData[key] = val
 	
 	def __str__(self):
 		s = ''
-		for key in self.GardenData.keys():
-			s += key + ':' + str(self.GardenData[key]) + '\n'
+		for key, val in self.GardenData.items():
+			s += str(key) + ':' + str(val) + '\n'
 
-		for cellName in self.CellList.keys():
+		for cellName in self.CellList:
 			s += '----------\n'
 			s += str(self.CellList[cellName]) + '\n'
 		
-		for basinName in self.BasinList.keys():
+		for basinName in self.BasinList:
 			s += '----------\n'
 			s += str(self.BasinList[basinName]) + '\n'
 		

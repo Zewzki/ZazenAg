@@ -6,21 +6,21 @@ class Cell():
 	CellNameKey = 'CellName'
 	PlantTypeKey = 'PlantType'
 	SprayPinKey = 'SprayPin'
-	OffTimeKey = 'OffTime'
-	OnTimeKey = 'OnTime'
+	TimeBetweenSpraysKey = 'TimeBetweenSprays'
+	SprayDurationKey = 'OnTime'
 	LastSprayKey = 'LastSpray'
 
 	KeySearch = '<[a-zA-Z\s\d.]*>'
 	ValueSearch = '>[a-zA-Z\/\d.]*<\/'
 	
-	def __init__(self, Name = 'Default_Name', PlantType = 'Default_Plant', SprayPin = None, OffTime = 120.0, OnTime = 10.0, LastSpray = 0.0):
+	def __init__(self, Name = 'Default_Name', PlantType = 'Default_Plant', SprayPin = None, TimeBetweenSprays = 120.0, SprayDuration = 10.0, LastSpray = 0.0):
 		
 		self.CellData = {}
 		self.CellData[self.CellNameKey] = Name
 		self.CellData[self.PlantTypeKey] = PlantType
 		self.CellData[self.SprayPinKey] = SprayPin
-		self.CellData[self.OffTimeKey] = OffTime
-		self.CellData[self.OnTimeKey] = OnTime
+		self.CellData[self.TimeBetweenSpraysKey] = TimeBetweenSprays
+		self.CellData[self.SprayDurationKey] = SprayDuration
 		self.CellData[self.LastSprayKey] = LastSpray
 		
 		self.KeyPattern = re.compile(self.KeySearch)
@@ -46,12 +46,13 @@ class Cell():
 
 	def Serialize(self):
 		s = '<Cell>\n'
-		for key in self.CellData.keys():
-			s += '\t<' + key + '>' + str(self.CellData[key]) + '</' + key + '>\n'
+		for key, val in self.CellData.items():
+			s += '\t<' + str(key) + '>' + str(val) + '</' + str(key) + '>\n'
 		s += '</Cell>\n'
+
 		return s
 
-	def Deserialize(self, rawString):
+	def Deserialize(self, rawString, diagnosticMode = False):
 
 		self.CellData.clear()
 
@@ -60,22 +61,22 @@ class Cell():
 		keys = self.KeyPattern.findall(rawString)
 		values = self.ValuePattern.findall(rawString)
 
+		if diagnosticMode:
+			print(zip(keys, values))
+
 		if not len(keys) == len(values):
-			print('Error Deserializing, number of keys did not match number of values: ({0} != {1})\n{2}'.format(len(keys), len(values), rawString))
+			print('Error Deserializing Cell, number of keys did not match number of values: ({0} != {1})\n{2}'.format(len(keys), len(values), rawString))
 			return
 
-		for i in range(0, len(keys)):
-			key = keys[i]
-			val = values[i]
-
+		for key, val in zip(keys, values):
 			key = key.replace('<', '').replace('>', '')
 			val = val.replace('</', '').replace('>', '')
 			self.CellData[key] = val
 		
 	def __str__(self):
 		s = ''
-		for key in self.CellData.keys():
-			s += key + ':' + str(self.CellData[key]) + '\n'
+		for key, val in self.CellData.items():
+			s += str(key) + ':' + str(val) + '\n'
 		return s
 
 if __name__ == '__main__':
