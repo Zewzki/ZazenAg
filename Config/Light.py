@@ -3,10 +3,10 @@ import re
 class Light():
 
 	LightNameKey = 'LightName'
-	PinNumberKey = 'PinNum'
+	PinNumberKey = 'ControlPin'
 
-	KeySearch = '<[a-zA-Z\s\d.]*>'
-	ValueSearch = '>[a-zA-Z\/\d.]*<\/'
+	KeySearch = '<[a-zA-Z\s\d.:]*>'
+	ValueSearch = '>[a-zA-Z\/\d.:]*<\/'
 	
 	def __init__(self, Name = 'Default_Name', PinNum = None):
 		

@@ -7,8 +7,8 @@ class Basin():
 	SalinityKey = 'Salinity'
 	PollDelayKey = 'PollDelay'
 
-	KeySearch = '<[a-zA-Z\s\d.]*>'
-	ValueSearch = '>[a-zA-Z\/\d.]*<\/'
+	KeySearch = '<[a-zA-Z\s\d.:]*>'
+	ValueSearch = '>[a-zA-Z\/\d.:]*<\/'
 	
 	def __init__(self, Name = 'Default_Name', PollDelay = 300):
 		

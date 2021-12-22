@@ -10,8 +10,8 @@ class Cell():
 	SprayDurationKey = 'OnTime'
 	LastSprayKey = 'LastSpray'
 
-	KeySearch = '<[a-zA-Z\s\d.]*>'
-	ValueSearch = '>[a-zA-Z\/\d.]*<\/'
+	KeySearch = '<[a-zA-Z\s\d.:]*>'
+	ValueSearch = '>[a-zA-Z\/\d.:]*<\/'
 	
 	def __init__(self, Name = 'Default_Name', PlantType = 'Default_Plant', SprayPin = None, TimeBetweenSprays = 120.0, SprayDuration = 10.0, LastSpray = 0.0):
 		

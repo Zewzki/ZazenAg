@@ -11,16 +11,20 @@ class SystemConfig():
 
 	GardenSearch = '<Garden>[a-zA-Z\s<>\/\d.:]*<\/Garden>'
 	DiagnosticModeSearch = '<DiagnosticMode>[a-zA-Z]*<\/DiagnosticMode>'
+	SystemDelaySearch = '<SystemDelayMs>[\d.:]*<\/SystemDelayMs>'
 
 	DiagnosticModeKey = 'DiagnosticMode'
+	SystemDelayKey = 'SystemDelayMs'
 
 	def __init__(self, path):
 		
 		self.GardenList = {}
 		self.GardenPattern = re.compile(self.GardenSearch)
 		self.DiagnosticModePattern = re.compile(self.DiagnosticModeSearch)
+		self.SystemDelayPattern = re.compile(self.SystemDelaySearch)
 
 		self.DiagnosticMode = False
+		self.SystemDelayMs = 1000
 
 		self.Deserialize(path)
 
@@ -48,7 +52,8 @@ class SystemConfig():
 		s = '<SystemConfig>\n'
 
 		s += '<' + self.DiagnosticModeKey + '>' + str(self.DiagnosticMode) + '</' + self.DiagnosticModeKey + '>\n'
-		
+		s += '<' + self.SystemDelayKey + '>' + str(self.SystemDelayMs) + '</' + self.SystemDelayKey + '>\n'
+
 		for key, val in self.GardenList.items():
 			s += val.Serialize() + '\n'
 		
@@ -68,13 +73,22 @@ class SystemConfig():
 
 			configData = configData.replace('<SystemConfig>', '').replace('</SystemConfig>', '')
 
+			# Search for diagnostic mode
 			searchResults = self.DiagnosticModePattern.findall(configData)
 			if searchResults is None:
 				raise Exception('DiagnosticMode not present in config file')
-
 			searchResults = searchResults[0].replace('<DiagnosticMode>', '').replace('</DiagnosticMode>', '')
+			if searchResults == 'True':
+				self.DiagnosticMode = True
+			else:
+				self.DiagnosticMode = False
 
-			self.DiagnosticMode = bool(searchResults)
+			# Search for system delay
+			searchResults = self.SystemDelayPattern.findall(configData)
+			if searchResults is None:
+				raise Exception('SystemDelayMs not present in config file')
+			searchResults = searchResults[0].replace('<SystemDelayMs>', '').replace('</SystemDelayMs>', '')
+			self.SystemDelayMs = float(searchResults)
 
 			gardens = self.GardenPattern.findall(configData)
 

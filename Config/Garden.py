@@ -10,11 +10,11 @@ class Garden():
 	CapacityKey = 'Capacity'
 	BasinPollDelayKey = 'BasinPollDelay'
 
-	KeySearch = '<[a-zA-Z\s\d.]*>'
-	ValueSearch = '>[a-zA-Z\/\d.]*<\/'
-	CellSearch = '<Cell>[a-zA-Z\s<>\/\d.]*<\/Cell>'
-	BasinSearch = '<Basin>[a-zA-Z\s<>\/\d.]*<\/Basin>'
-	LightSearch = '<Light>[a-zA-Z\s<>\/\d.]*<\/Light>'
+	KeySearch = '<[a-zA-Z\s\d.:]*>'
+	ValueSearch = '>[a-zA-Z\/\d.:]*<\/'
+	CellSearch = '<Cell>[a-zA-Z\s<>\/\d.:]*<\/Cell>'
+	BasinSearch = '<Basin>[a-zA-Z\s<>\/\d.:]*<\/Basin>'
+	LightSearch = '<Light>[a-zA-Z\s<>\/\d.:]*<\/Light>'
 
 	def __init__(self, Name = 'Default_Name', Capacity = 0, BasinPollDelay = 120.0):
 
@@ -36,32 +36,36 @@ class Garden():
 		if key in self.GardenData.keys():
 			self.GardenData[key] = value
 		else:
-			print('Key "{0}" not present in dictionary, use "AddField"'.format(key))
+			print('Key "{0}" not present in Data Fields, use "AddField"'.format(key))
 
 	def AddField(self, key, value):
 		if key in self.GardenData.keys():
-			print('Key "{0}" present in dictionary, use "SetField"'.format(key))
+			print('Key "{0}" present in Data Fields, use "SetField"'.format(key))
 		else:
 			self.GardenData[key] = value
 	
 	def GetField(self, key):
 		if not key in self.GardenData.keys():
-			print('Key "{0}" not present in dictionary'.format(key))
+			print('Key "{0}" not present in Data Fields'.format(key))
 		else:
 			return self.GardenData[key]
 
 	def UpdateCell(self, updatedCell):
 		cellName = updatedCell.GetField('CellName')
-		if not cellName in self.CellList.keys():
+		if not cellName in self.CellList:
 			print('Key "{0}" not found in Cell List...'.format(cellName))
 		else:
 			self.CellList[cellName] = updatedCell
 	
 	def AddCell(self, newCell):
-		self.CellList[newCell.Name] = newCell
+		cellName = newCell.GetField('CellName')
+		if cellName in self.CellList:
+			print('Key "{0}" present in Cell List, use UpdateCell...'.format(cellName))
+		else:
+			self.CellList[cellName] = newCell
 	
 	def RemoveCell(self, cellName):
-		if cellName in self.CellList.keys():
+		if cellName in self.CellList:
 			return self.CellList.pop(cellName)
 		else:
 			print('Key "{0}" not found in Cell List...'.format(cellName))
@@ -69,6 +73,53 @@ class Garden():
 	
 	def GetCellList(self):
 		return self.CellList
+	
+	def UpdateBasin(self, updatedBasin):
+		basinName = updatedBasin.GetField('BasinName')
+		if not basinName in self.BasinList:
+			print('Key "{0}" not found in Basin List...'.format(basinName))
+		else:
+			self.BasinList[basinName] = updatedBasin
+	
+	def AddBasin(self, newBasin):
+		basinName = newBasin.GetField('BasinName')
+		if basinName in self.BasinList:
+			print('Key "{0}" present in Basin List, use UpdateBasin...'.format(basinName))
+		else:
+			self.BasinList[basinName] = newBasin
+	
+	def Removebasin(self, basinName):
+		if basinName in self.BasinList:
+			return self.BasinList.pop(basinName)
+		else:
+			print('Key "{0}" not found in Basin List...'.format(basinName))
+	
+	def GetBasinList(self):
+		return self.BasinList
+
+	def UpdateLight(self, updatedLight):
+		lightName = updatedLight.GetField('LightName')
+		if not lightName in self.LightList:
+			print('Key "{0}" not found in Light List...'.format(lightName))
+		else:
+			self.LightList[lightName] = updatedLight
+	
+	def AddLight(self, newLight):
+		lightName = newLight.GetField('LightName')
+		if lightName in self.LightList:
+			print('Key "{0}" present in Light List, use Update Light'.format(lightName))
+		else:
+			self.LightList[lightName] = newLight
+	
+	def RemoveLight(self, lightName):
+		if lightName in self.LightList:
+			return self.LightList.pop(lightName)
+		else:
+			print('Key "{0}" not found in Light List...'.format(lightName))
+			return None
+	
+	def GetLightList(self):
+		return self.LightList
 	
 	def Serialize(self):
 		s = '<Garden>\n'
