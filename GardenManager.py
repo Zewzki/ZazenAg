@@ -66,16 +66,16 @@ class GardenManager():
                     associatedLightName = str(cell.GetField('AssociatedLight'))
                     associatedLightPin = self.GetLightPinFromName(garden, associatedLightName)
 
-                    currTimeMs = time()
+                    currTimeS = time()
                     currTimeOfDay = gmtime()
 
-                    if currTimeMs >= lastSprayTimeMs + timeBetweenSpraysMs and not self.SprayManagement[sprayPin]:
+                    if currTimeS >= lastSprayTimeMs + timeBetweenSpraysMs and not self.SprayManagement[sprayPin]:
                         self.SprayManagement[sprayPin] = 1
                         cell.SetField('LastSpray', time())
                         logging.debug('Turning On Spray Pin {0}'.format(sprayPin))
                         # turn on pin
 
-                    if currTimeMs > lastSprayTimeMs + sprayDurationMs and self.SprayManagement[sprayPin]:
+                    if currTimeS > lastSprayTimeMs + sprayDurationMs and self.SprayManagement[sprayPin]:
                         self.SprayManagement[sprayPin] = 0
                         logging.debug('Turning Off Spray Pin {0}'.format(sprayPin))
                         # turn off pin
